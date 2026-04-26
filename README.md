@@ -38,7 +38,7 @@ Depending on your actual stack, edit this section. Example:
 ## 📸 Preview
 
 <p align="center">
-  <img src="assets/preview.png" width="800"/>
+  <img src="vachikumbu_backend/assets/preview.png" width="800"/>
 </p>
 
 ---
