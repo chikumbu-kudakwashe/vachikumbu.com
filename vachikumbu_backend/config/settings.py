@@ -7,7 +7,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = 'django-insecure-7m8f3sgmrh&t-k6pecfvm54@=rd9t-2$w=wt@c6-w^*5fwvab2'
 
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['vachikumbu.com', '127.0.0.1', 'localhost', 'www.vachikumbu.com']
 
@@ -83,16 +83,6 @@ DATABASES = {
     }
 }
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'your_db_name',
-        'USER': 'your_mysql_username', # Usually 'root' for local dev
-        'PASSWORD': 'your_mysql_password',
-        'HOST': '127.0.0.1', # Or 'localhost'
-        'PORT': '3306',      # Default MySQL port
-    }
-}
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:8080",
@@ -101,10 +91,6 @@ CORS_ALLOWED_ORIGINS = [
     "http://vachikumbu.com",
 ]
 
-
-
-# Password validation
-# https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -148,4 +134,4 @@ EMAIL_PORT = 465
 EMAIL_USE_SSL = True
 EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
-DEFAULT_FROM_EMAIL = " VaChikumbu Portfolio Contact <contact@vachikumbu.com>"
+DEFAULT_FROM_EMAIL = " VaChikumbu Portfolio Contact <contact@vachikumbu.com>"   

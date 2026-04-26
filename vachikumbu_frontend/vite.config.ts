@@ -14,17 +14,17 @@ export default defineConfig(({ mode }) => ({
     // Proxy configuration for API and media files
     proxy: {
       '/api': {
-        target: 'http://127.0.0.1:8000',
+        target: 'http://',
         changeOrigin: true,
         secure: false,
       },
       '/media': {
-        target: 'http://127.0.0.1:8000',
+        target: "https://vachikumbu.com",
         changeOrigin: true,
         secure: false,
       },
       '/static': {
-        target: 'http://127.0.0.1:8000',
+        target: "https://vachikumbu.com",
         changeOrigin: true,
         secure: false,
       },
