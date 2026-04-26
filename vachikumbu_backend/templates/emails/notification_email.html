@@ -1,0 +1,51 @@
+{% extends "emails/base_email.html" %}
+
+{% block title %}Portfolio Notification{% endblock %}
+
+{% block content %}
+<div style="color: #E5E7EB;">
+    <div style="margin-bottom: 32px;">
+        <h1 style="color: #FFFFFF; font-size: 24px; font-weight: 700; margin: 0 0 8px; letter-spacing: -0.5px;">
+            New Portfolio Notification
+        </h1>
+        <div style="height: 2px; width: 40px; background-color: #2ECC71; border-radius: 1px;"></div>
+    </div>
+
+    <!-- Sender Info Cards -->
+    <div style="margin-bottom: 32px;">
+        <div
+            style="background-color: #232A38; border-radius: 8px; padding: 20px; margin-bottom: 12px; border-left: 3px solid #2ECC71;">
+            <div
+                style="font-size: 11px; color: #6B7A99; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px;">
+                From</div>
+            <div style="color: #FFFFFF; font-size: 16px; font-weight: 600;">{{ name }}</div>
+        </div>
+
+        {% if subject %}
+        <div style="background-color: #232A38; border-radius: 8px; padding: 20px;">
+            <div
+                style="font-size: 11px; color: #6B7A99; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px;">
+                Subject</div>
+            <div style="color: #CDD6E0; font-size: 15px;">{{ subject }}</div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Message -->
+    <div style="margin-bottom: 24px;">
+        <div
+            style="font-size: 11px; color: #6B7A99; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;">
+            Message</div>
+        <div
+            style="background-color: #232A38; border-radius: 8px; padding: 24px; color: #CDD6E0; font-size: 15px; line-height: 1.7; white-space: pre-wrap;">
+            {{ message }}
+        </div>
+    </div>
+
+    <!-- CTA -->
+    <a href="https://vachikumbu.com/admin/"
+        style="display: inline-block; background-color: #2ECC71; color: #0F1319; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: 600; font-size: 15px; text-align: center; margin-top: 8px;">
+        Approve on vachikumbu.com/admin/main/review/
+    </a>
+</div>
+{% endblock %}
