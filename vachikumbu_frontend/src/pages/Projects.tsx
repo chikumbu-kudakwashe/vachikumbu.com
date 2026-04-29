@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo } from "react";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import { ProjectCard } from "@/components/projects/ProjectCard";
-import { api } from "@/lib/api1";
+import { api } from "@/lib/api";
 import type { Project } from "@/lib/types";
 import { Search } from "lucide-react";
 

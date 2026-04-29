@@ -10,7 +10,7 @@ class HighlightAdmin(admin.ModelAdmin):
 
 @admin.register(Skill)
 class SkillAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'category', 'level')
+    list_display = ('id', 'name', 'category')
     list_filter = ('category',)
     search_fields = ('name', 'category')
 

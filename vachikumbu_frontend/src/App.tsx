@@ -11,7 +11,6 @@ import Projects from "./pages/Projects";
 import ProjectDetail from "./pages/ProjectDetail";
 import Contact from "./pages/Contact";
 import Reviews from "./pages/Reviews";
-import AdminDashboard from "./pages/admin/Dashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -27,7 +26,6 @@ function AnimatedRoutes() {
         <Route path="/projects/:id" element={<PageTransition><ProjectDetail /></PageTransition>} />
         <Route path="/contact" element={<PageTransition><Contact /></PageTransition>} />
         <Route path="/reviews" element={<PageTransition><Reviews /></PageTransition>} />
-        <Route path="/admin" element={<PageTransition><AdminDashboard /></PageTransition>} />
         <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
       </Routes>
     </AnimatePresence>

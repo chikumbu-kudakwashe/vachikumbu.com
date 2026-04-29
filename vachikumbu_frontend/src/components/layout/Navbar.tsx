@@ -51,7 +51,7 @@ export function Navbar() {
           <img
             src={logoSrc}
             alt="VaChikumbu Logo"
-            className="h-52 md:h-52 w-auto"
+            className="h-10 md:h-12 w-auto"
           />
         </Link>
 
@@ -104,7 +104,9 @@ export function Navbar() {
                   <Link
                     to={link.href}
                     className={`text-sm font-medium py-2 block transition-colors ${
-                      location.pathname === link.href ? "text-primary" : "text-muted-foreground"
+                      location.pathname === link.href
+                        ? "text-primary"
+                        : "text-muted-foreground"
                     }`}
                   >
                     {link.label}

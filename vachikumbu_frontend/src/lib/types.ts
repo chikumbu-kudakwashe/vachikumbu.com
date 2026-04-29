@@ -20,20 +20,15 @@ export interface Tag {
   name: string;
 }
 
-export interface ProjectImage {
-  id: number;
-  image: string; // URL returned by DRF
-}
-
 export interface Project {
   id: number;
   title: string;
   overview: string;
   long_description: string;
-  technologies: Technology[];
+  /** Absolute URL returned directly by the backend — render as-is. */
   image: string;
+  technologies: Technology[];
   tags: Tag[];
-  project_images: ProjectImage[];
   challenges: string;
   devStory: string;
   demoUrl: string;
@@ -43,11 +38,6 @@ export interface Project {
   featured: boolean;
   createdAt: string; // ISO datetime
   updatedAt: string; // ISO datetime
-
-  // write-only (used in create/update payloads)
-  technology_ids?: number[];
-  tag_ids?: number[];
-  image_ids?: number[];
 }
 
 // ─── About App ────────────────────────────────────────────────────────────────
@@ -70,12 +60,9 @@ export interface AboutData {
   philosophy: string;
   highlights: Highlight[];
   skills: Skill[];
-  cv: string; // URL returned by DRF
-  updatedAt: string; // ISO datetime
-
-  // write-only (used in update payloads)
-  highlight_ids?: number[];
-  skill_ids?: number[];
+  /** Absolute URL to the CV file — use directly in an <a href>. */
+  cv: string;
+  updatedAt: string;
 }
 
 export interface Certification {
@@ -84,7 +71,8 @@ export interface Certification {
   issuer: string;
   date: string; // YYYY-MM-DD
   link: string;
-  image: string; // URL returned by DRF
+  /** Absolute URL returned directly by the backend — render as-is. */
+  image: string;
 }
 
 export interface Testimonial {
@@ -101,8 +89,7 @@ export interface Review {
   id: number;
   name: string;
   message: string;
-  rating?: number;
-  createdAt: string; // ISO datetime
+  rating: number;
 }
 
 export interface ContactMessage {
@@ -111,42 +98,3 @@ export interface ContactMessage {
   subject?: string;
   message: string;
 }
-
-// ─── Analytics ────────────────────────────────────────────────────────────────
-
-export interface Analytics {
-  totalProjects: number;
-  completedProjects: number;
-  activeProjects: number;
-  totalCertifications: number;
-  totalTestimonials: number;
-  totalReviews: number;
-  averageRating: number;
-}
-
-// ─── Auth ─────────────────────────────────────────────────────────────────────
-
-export interface TokenPair {
-  access: string;
-  refresh: string;
-}
-
-export interface TokenRefreshResponse {
-  access: string;
-}
-
-// ─── API Helpers ──────────────────────────────────────────────────────────────
-
-export type CreateProject = Omit<Project, "id" | "createdAt" | "updatedAt">;
-export type UpdateProject = Partial<CreateProject>;
-
-export type CreateCertification = Omit<Certification, "id">;
-export type UpdateCertification = Partial<CreateCertification>;
-
-export type CreateSkill = Omit<Skill, "id">;
-export type UpdateSkill = Partial<CreateSkill>;
-
-export type CreateTestimonial = Omit<Testimonial, "id">;
-export type UpdateTestimonial = Partial<CreateTestimonial>;
-
-export type SubmitReview = Pick<Review, "name" | "message" | "rating">;

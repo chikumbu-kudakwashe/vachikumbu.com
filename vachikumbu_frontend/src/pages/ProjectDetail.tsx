@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
-import { api } from "@/lib/api1";
+import { api } from "@/lib/api";
 import type { Project } from "@/lib/types";
 import {
   ArrowLeft,
@@ -13,20 +13,6 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 
-const resolveImageUrl = (url: string | null | undefined): string | null => {
-  if (!url) return null;
-  if (url.startsWith("/")) return url;
-  try {
-    const parsed = new URL(url);
-    if (parsed.hostname === "127.0.0.1" || parsed.hostname === "localhost") {
-      return parsed.pathname + parsed.search;
-    }
-  } catch {
-    // not a valid URL, return as-is
-  }
-  return url;
-};
-
 export default function ProjectDetail() {
   const { id } = useParams<{ id: string }>();
   const [project, setProject] = useState<Project | null>(null);
@@ -35,15 +21,12 @@ export default function ProjectDetail() {
 
   useEffect(() => {
     if (id) {
-      api.getProject(id).then((p) => {
-        setProject(p || null);
-        setLoading(false);
-      });
+      api
+        .getProject(id)
+        .then((p) => setProject(p ?? null))
+        .finally(() => setLoading(false));
     }
   }, [id]);
-
-  // ✅ FIXED: moved after hooks, uses optional chaining so it's safe when project is null
-  const imageUrl = resolveImageUrl(project?.image);
 
   if (loading) {
     return (
@@ -70,6 +53,8 @@ export default function ProjectDetail() {
     );
   }
 
+  const imageUrl = project.image || null;
+
   return (
     <PageLayout>
       <section className="section-padding">
@@ -82,23 +67,13 @@ export default function ProjectDetail() {
               <ArrowLeft size={14} /> Back to Projects
             </Link>
 
-            {/* <div className="flex flex-wrap items-center gap-3 mb-4">
-              <span className="text-xs font-medium px-3 py-1 rounded-full border border-primary/20 bg-primary/5 text-primary capitalize">
-                {project.status}
-              </span>
-              {project.featured && (
-                <span className="text-xs font-medium px-3 py-1 rounded-full border border-border text-muted-foreground">
-                  Featured
-                </span>
-              )}
-            </div> */}
-
-            <div className="relative w-full h-48 overflow-hidden bg-secondary/30">
+            {/* Hero image */}
+            <div className="relative w-full h-48 overflow-hidden bg-secondary/30 rounded-xl mb-8">
               {imageUrl && !imageError ? (
                 <img
                   src={imageUrl}
                   alt={`${project.title} preview`}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  className="w-full h-full object-cover"
                   onError={() => setImageError(true)}
                 />
               ) : (
@@ -110,10 +85,7 @@ export default function ProjectDetail() {
                 </div>
               )}
 
-              {/* Gradient overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-
-              {/* Status badges overlay */}
+              {/* Status badges */}
               <div className="absolute top-3 left-3 right-3 flex items-center justify-between">
                 <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-background/90 backdrop-blur-sm border border-border/50 text-foreground capitalize shadow-sm">
                   {project.status}
@@ -219,7 +191,9 @@ export default function ProjectDetail() {
           <ScrollReveal>
             <div className="flex items-center gap-4 text-sm text-muted-foreground">
               <Calendar size={14} />
-              <span>Last updated: {project.updatedAt}</span>
+              <span>
+                Last updated: {new Date(project.updatedAt).toLocaleDateString()}
+              </span>
               <span className="ml-auto">Progress: {project.progress}%</span>
             </div>
             <div className="mt-3 h-1.5 rounded-full bg-secondary overflow-hidden">

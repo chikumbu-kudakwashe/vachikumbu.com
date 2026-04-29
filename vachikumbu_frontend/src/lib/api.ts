@@ -1,33 +1,18 @@
-// lib/api.ts
+
 import axios from 'axios';
 import type {
-  ProjectStatus,
-  Technology,
-  Tag,
-  ProjectImage,
   Project,
-  Highlight,
   Skill,
   AboutData,
   Certification,
   Testimonial,
   Review,
   ContactMessage,
-  Analytics,
-  TokenPair,
-  TokenRefreshResponse,
-  CreateProject,
-  UpdateProject,
-  CreateCertification,
-  UpdateCertification,
-  CreateSkill,
-  UpdateSkill,
-  CreateTestimonial,
-  UpdateTestimonial,
-  SubmitReview,
 } from "@/types";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://vachikumbu.com";
+// const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://vachikumbu.com";
+// const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://192.168.50.1:8000";
 
 const apiInstance = axios.create({
   baseURL: `${API_BASE_URL}/api`,
@@ -41,39 +26,25 @@ const request = async <T>(url: string, config = {}): Promise<T> => {
   return response.data;
 };
 
-const transformImageUrl = (url: string): string => {
-  if (!url) return '';
-  if (import.meta.env.DEV) {
-    return "https://vachikumbu.com/";
-  }
-  return url;
-};
-
-const processProject = (project: Project): Project => ({
-  ...project,
-  image: transformImageUrl(project.image),
-});
 
 export const api = {
   // ── Projects ──────────────────────────────────────────────────────────────
   async getProjects(): Promise<Project[]> {
-    const projects = await request<Project[]>("/projects/");
-    return projects.map(processProject);
+    return request<Project[]>("/projects/");
   },
 
-  async getProject(id: string): Promise<Project> {
-    const project = await request<Project>(`/projects/${id}/`);
-    return processProject(project);
+  async getProject(id: string | number): Promise<Project> {
+    return request<Project>(`/projects/${id}/`);
   },
 
   async getFeaturedProjects(): Promise<Project[]> {
-    const projects = await request<Project[]>("/projects/", { params: { featured: true } });
-    return projects.map(processProject);
+    return request<Project[]>("/projects/", { params: { featured: true } });
   },
 
   // ── Skills ────────────────────────────────────────────────────────────────
   async getSkills(): Promise<Skill[]> {
-    return request<Skill[]>("/skills/");
+    const skills = (await request<AboutData>("/about/")).skills
+    return skills;
   },
 
   // ── About ─────────────────────────────────────────────────────────────────

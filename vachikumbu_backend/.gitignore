@@ -26,10 +26,11 @@ db.sqlite3-journal
 # Static & media (optional depending on setup)
 media/
 staticfiles/
+uploads/
 
 # Migrations (optional — usually keep them!)
-# */migrations/*
-# !*/migrations/__init__.py
+migrations/
+migrations/__init__.py
 
 # Python packaging
 build/

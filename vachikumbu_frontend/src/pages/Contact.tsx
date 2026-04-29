@@ -18,7 +18,6 @@ export default function Contact() {
   const [touched, setTouched] = useState<any>({});
   const [submitting, setSubmitting] = useState(false);
 
-  // ✅ VALIDATION
   const validateField = (name: string, value: string) => {
     let error = "";
 
@@ -41,7 +40,7 @@ export default function Contact() {
     return error;
   };
 
-  // ✅ ON CHANGE
+  
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
@@ -55,7 +54,7 @@ export default function Contact() {
     }
   };
 
-  // ✅ ON BLUR
+  
   const handleBlur = (
     e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
@@ -67,7 +66,7 @@ export default function Contact() {
     setErrors((prev: any) => ({ ...prev, [name]: error }));
   };
 
-  // ✅ SUBMIT
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 

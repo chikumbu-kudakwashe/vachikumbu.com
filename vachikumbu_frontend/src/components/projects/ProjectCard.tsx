@@ -8,23 +8,10 @@ interface ProjectCardProps {
   project: Project;
 }
 
-const resolveImageUrl = (url: string | null | undefined): string | null => {
-  if (!url) return null;
-  if (url.startsWith("/")) return url;
-  try {
-    const parsed = new URL(url);
-    if (parsed.hostname === "127.0.0.1" || parsed.hostname === "localhost") {
-      return parsed.pathname + parsed.search;
-    }
-  } catch {
-    // not a valid URL, return as-is
-  }
-  return url;
-};
-
 export function ProjectCard({ project }: ProjectCardProps) {
   const [imageError, setImageError] = useState(false);
-  const imageUrl = resolveImageUrl(project.image);
+
+  const imageUrl = project.image || null;
 
   return (
     <motion.div
@@ -51,7 +38,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
         {/* Gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-        {/* Status badges overlay */}
+        {/* Status badges */}
         <div className="absolute top-3 left-3 right-3 flex items-center justify-between">
           <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-background/90 backdrop-blur-sm border border-border/50 text-foreground capitalize shadow-sm">
             {project.status}
@@ -98,9 +85,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
           <div className="mb-4">
             <div className="flex justify-between text-xs mb-1">
               <span className="text-muted-foreground">Progress</span>
-              <span className="text-primary font-medium">
-                {project.progress}%
-              </span>
+              <span className="text-primary font-medium">{project.progress}%</span>
             </div>
             <div className="w-full h-1.5 bg-secondary rounded-full overflow-hidden">
               <div

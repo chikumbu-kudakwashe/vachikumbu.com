@@ -1,30 +1,34 @@
 import { useEffect, useState } from "react";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
-import { api } from "@/lib/api1";
-import type { AboutData, Skill, Certification } from "@/lib/types";
+import { api } from "@/lib/api";
+import type { AboutData, Certification } from "@/lib/types";
 import { Download, CheckCircle, Award, ExternalLink } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function About() {
   const [about, setAbout] = useState<AboutData | null>(null);
-  const [skills, setSkills] = useState<Skill[]>([]);
   const [certifications, setCertifications] = useState<Certification[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
-    Promise.all([
-      api.getAbout(),
-      api.getSkills(),
-      api.getCertifications(),
-    ]).then(([a, s, c]) => {
-      setAbout(a);
-      setSkills(s);
-      setCertifications(c);
-      setLoading(false);
-    });
+    Promise.all([api.getAbout(), api.getCertifications()])
+      .then(([a, c]) => {
+        setAbout(a);
+        setCertifications(c);
+      })
+      .catch((err) => {
+        console.error("Failed to load about data:", err);
+        setError(true);
+      })
+      .finally(() => setLoading(false));
   }, []);
 
+  // Skills and highlights are nested inside the about response —
+  // no separate API call needed.
+  const skills = about?.skills ?? [];
+  const highlights = about?.highlights ?? [];
   const categories = [...new Set(skills.map((s) => s.category))];
 
   if (loading) {
@@ -41,6 +45,18 @@ export default function About() {
     );
   }
 
+  if (error || !about) {
+    return (
+      <PageLayout>
+        <div className="section-padding px-4 md:px-8 max-w-5xl mx-auto text-center">
+          <p className="text-muted-foreground">
+            Failed to load about data. Please try again later.
+          </p>
+        </div>
+      </PageLayout>
+    );
+  }
+
   return (
     <PageLayout>
       <section className="section-padding">
@@ -52,7 +68,7 @@ export default function About() {
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.6 }}
-                className="w-32 h-32 md:w-40 md:h-40 rounded-2xl  shrink-0 overflow-hidden"
+                className="w-32 h-32 md:w-40 md:h-40 rounded-2xl shrink-0 overflow-hidden"
               >
                 <img
                   src="/images/profile.png"
@@ -68,88 +84,112 @@ export default function About() {
                   Kudakwashe <span className="text-primary">Chikumbu</span>
                 </h1>
                 <p className="text-base md:text-lg text-muted-foreground max-w-2xl leading-relaxed">
-                  {about?.bio}
+                  {about.bio}
                 </p>
               </div>
             </div>
           </ScrollReveal>
 
           {/* Philosophy */}
-          <ScrollReveal animation="fade-right">
-            <div className="mb-16 p-6 md:p-10 rounded-2xl bg-card border border-border">
-              <h2 className="font-display text-2xl font-bold mb-4">
-                Development Philosophy
-              </h2>
-              <p className="text-muted-foreground italic text-lg leading-relaxed">
-                "{about?.philosophy}"
-              </p>
-            </div>
-          </ScrollReveal>
+          {about.philosophy && (
+            <ScrollReveal animation="fade-right">
+              <div className="mb-16 p-6 md:p-10 rounded-2xl bg-card border border-border">
+                <h2 className="font-display text-2xl font-bold mb-4">
+                  Development Philosophy
+                </h2>
+                <p className="text-muted-foreground italic text-lg leading-relaxed">
+                  "{about.philosophy}"
+                </p>
+              </div>
+            </ScrollReveal>
+          )}
 
           {/* Career Highlights */}
-          <ScrollReveal>
-            <div className="mb-16">
-              <h2 className="font-display text-2xl font-bold mb-6">
-                Career Highlights
-              </h2>
-              <div className="space-y-4">
-                {about?.highlights.map((h, i) => (
-                  <motion.div
-                    key={h.id}
-                    initial={{ opacity: 0, x: -20 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.1, duration: 0.5 }}
-                    className="flex items-start gap-3"
-                  >
-                    <CheckCircle
-                      size={18}
-                      className="text-primary mt-0.5 shrink-0"
-                    />
-                    <span className="text-muted-foreground">{h.highlight}</span>
-                  </motion.div>
-                ))}
+          {highlights.length > 0 && (
+            <ScrollReveal>
+              <div className="mb-16">
+                <h2 className="font-display text-2xl font-bold mb-6">
+                  Career Highlights
+                </h2>
+                <div className="space-y-4">
+                  {highlights.map((h, i) => (
+                    <motion.div
+                      key={h.id}
+                      initial={{ opacity: 0, x: -20 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: i * 0.1, duration: 0.5 }}
+                      className="flex items-start gap-3"
+                    >
+                      <CheckCircle
+                        size={18}
+                        className="text-primary mt-0.5 shrink-0"
+                      />
+                      <span className="text-muted-foreground">
+                        {h.highlight}
+                      </span>
+                    </motion.div>
+                  ))}
+                </div>
               </div>
-            </div>
-          </ScrollReveal>
+            </ScrollReveal>
+          )}
 
           {/* Skills */}
-          <ScrollReveal>
-            <h2 className="font-display text-2xl font-bold mb-8">
-              Skills & Technologies
-            </h2>
-            <div className="space-y-8 mb-16">
-              {categories.map((cat, ci) => (
-                <ScrollReveal key={cat} delay={ci * 0.08}>
-                  <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-3">
-                    {cat}
-                  </h3>
-                  <div className="flex flex-wrap gap-2">
-                    {skills
-                      .filter((s) => s.category === cat)
-                      .map((skill, i) => (
-                        <motion.span
-                          key={skill.id}
-                          initial={{ opacity: 0, scale: 0.8 }}
-                          whileInView={{ opacity: 1, scale: 1 }}
-                          viewport={{ once: true }}
-                          transition={{ delay: i * 0.03, duration: 0.3 }}
-                          className="px-4 py-2 rounded-lg border border-border bg-background text-sm font-medium hover:border-primary hover:text-primary transition-colors cursor-default"
-                        >
-                          {skill.name}
-                        </motion.span>
-                      ))}
-                  </div>
-                </ScrollReveal>
-              ))}
-            </div>
-          </ScrollReveal>
+          {skills.length > 0 && (
+            <ScrollReveal>
+              <h2 className="font-display text-2xl font-bold mb-8">
+                Skills & Technologies
+              </h2>
+              <div className="space-y-8 mb-16">
+                {categories.map((cat, ci) => (
+                  <ScrollReveal key={cat} delay={ci * 0.08}>
+                    <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-3">
+                      {cat}
+                    </h3>
+                    <div className="flex flex-wrap gap-3">
+                      {skills
+                        .filter((s) => s.category === cat)
+                        .map((skill, i) => (
+                          <motion.div
+                            key={skill.id}
+                            initial={{ opacity: 0, scale: 0.8 }}
+                            whileInView={{ opacity: 1, scale: 1 }}
+                            viewport={{ once: true }}
+                            transition={{ delay: i * 0.03, duration: 0.3 }}
+                            className="flex flex-col gap-1 min-w-[80px]"
+                          >
+                            <span className="px-4 py-2 rounded-lg border border-border bg-background text-sm font-medium hover:border-primary hover:text-primary transition-colors cursor-default text-center">
+                              {skill.name}
+                            </span>
+                            {/* Proficiency bar
+                            <div className="h-1 rounded-full bg-secondary overflow-hidden">
+                              <motion.div
+                                initial={{ width: 0 }}
+                                whileInView={{ width: `${skill.level}%` }}
+                                viewport={{ once: true }}
+                                transition={{
+                                  duration: 0.8,
+                                  ease: "easeOut",
+                                  delay: i * 0.03,
+                                }}
+                                className="h-full bg-primary rounded-full"
+                              />
+                            </div> */}
+                          </motion.div>
+                        ))}
+                    </div>
+                  </ScrollReveal>
+                ))}
+              </div>
+            </ScrollReveal>
+          )}
 
           {/* Certifications */}
           {certifications.length > 0 && (
             <ScrollReveal>
               <h2 className="font-display text-2xl font-bold mb-8">
-                Certifications
+                Certifications & Awards
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-16">
                 {certifications.map((cert, i) => (
@@ -160,26 +200,39 @@ export default function About() {
                     viewport={{ once: true }}
                     transition={{ delay: i * 0.1, duration: 0.5 }}
                     whileHover={{ y: -4 }}
-                    className="p-5 rounded-xl border border-border bg-card"
+                    className="p-5 rounded-xl border border-border bg-card flex flex-col"
                   >
-                    <Award size={20} className="text-primary mb-3" />
+                    {/* Image — absolute URL from backend, render directly */}
+                    {cert.image && (
+                      <img
+                        src={cert.image}
+                        alt={cert.title}
+                        className="w-full h-full object-contain mb-4 rounded-md bg-secondary/20 p-2"
+                      />
+                    )}
+                    {!cert.image && (
+                      <Award size={20} className="text-primary mb-3" />
+                    )}
                     <h4 className="font-display text-sm font-semibold mb-1">
                       {cert.title}
                     </h4>
                     <p className="text-xs text-muted-foreground mb-1">
                       {cert.issuer}
                     </p>
-                    <p className="text-xs text-muted-foreground mb-2">
-                      {cert.date}
+                    <p className="text-xs text-muted-foreground mb-3">
+                      {new Date(cert.date).toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "long",
+                      })}
                     </p>
                     {cert.link && (
                       <a
                         href={cert.link}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-xs text-primary inline-flex items-center gap-1 hover:underline"
+                        className="text-xs text-primary inline-flex items-center gap-1 hover:underline mt-auto"
                       >
-                        View <ExternalLink size={10} />
+                        View Certificate <ExternalLink size={10} />
                       </a>
                     )}
                   </motion.div>
@@ -188,17 +241,21 @@ export default function About() {
             </ScrollReveal>
           )}
 
-          <ScrollReveal animation="scale">
-            <div className="text-center">
-              <a className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3.5 rounded-lg font-medium hover:opacity-90 transition-all duration-300"
-                href={about.cv}
-                download="Kudakwashe_Chikumbu_CV.pdf"
-              >
-                
-                <Download size={16} /> Download CV
-              </a>
-            </div>
-          </ScrollReveal>
+          {/* CV Download — cv is an absolute URL from the backend */}
+          {about.cv && (
+            <ScrollReveal animation="scale">
+              <div className="text-center pb-8">
+                <a
+                  href={about.cv}
+                  download="Kudakwashe_Chikumbu_CV.pdf"
+                  className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-lg text-sm font-medium hover:opacity-90 transition-all duration-300"
+                >
+                  <Download size={16} />
+                  Download CV
+                </a>
+              </div>
+            </ScrollReveal>
+          )}
         </div>
       </section>
     </PageLayout>
