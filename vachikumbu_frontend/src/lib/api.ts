@@ -26,45 +26,113 @@ const request = async <T>(url: string, config = {}): Promise<T> => {
   return response.data;
 };
 
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null && !Array.isArray(value);
+
+const warnInvalidResponse = (endpoint: string, expected: string, data: unknown) => {
+  console.warn(`Invalid API response from ${endpoint}; expected ${expected}.`, data);
+};
+
+const asList = <T>(data: unknown, endpoint: string): T[] => {
+  if (Array.isArray(data)) return data as T[];
+
+  if (isRecord(data) && Array.isArray(data.results)) {
+    return data.results as T[];
+  }
+
+  warnInvalidResponse(endpoint, "an array", data);
+  return [];
+};
+
+const firstObject = <T>(data: unknown, endpoint: string): Partial<T> => {
+  if (Array.isArray(data) && isRecord(data[0])) {
+    return data[0] as Partial<T>;
+  }
+
+  if (isRecord(data) && Array.isArray(data.results) && isRecord(data.results[0])) {
+    return data.results[0] as Partial<T>;
+  }
+
+  if (isRecord(data)) return data as Partial<T>;
+
+  warnInvalidResponse(endpoint, "an object", data);
+  return {};
+};
+
+const ensureProject = (project: Partial<Project>): Project => ({
+  id: Number(project.id ?? 0),
+  title: project.title ?? "",
+  overview: project.overview ?? "",
+  long_description: project.long_description ?? "",
+  image: project.image ?? "",
+  technologies: Array.isArray(project.technologies) ? project.technologies : [],
+  tags: Array.isArray(project.tags) ? project.tags : [],
+  challenges: project.challenges ?? "",
+  devStory: project.devStory ?? "",
+  demoUrl: project.demoUrl ?? "",
+  githubUrl: project.githubUrl ?? "",
+  status: project.status ?? "draft",
+  progress: Number(project.progress ?? 0),
+  featured: Boolean(project.featured),
+  createdAt: project.createdAt ?? "",
+  updatedAt: project.updatedAt ?? "",
+});
+
+const ensureAbout = (about: Partial<AboutData>): AboutData => ({
+  id: Number(about.id ?? 0),
+  bio: about.bio ?? "",
+  philosophy: about.philosophy ?? "",
+  highlights: Array.isArray(about.highlights) ? about.highlights : [],
+  skills: Array.isArray(about.skills) ? about.skills : [],
+  cv: about.cv ?? "",
+  updatedAt: about.updatedAt ?? "",
+});
+
 
 export const api = {
   // ── Projects ──────────────────────────────────────────────────────────────
   async getProjects(): Promise<Project[]> {
-    return request<Project[]>("/projects/");
+    const data = await request<unknown>("/projects/");
+    return asList<Partial<Project>>(data, "/projects/").map(ensureProject);
   },
 
   async getProject(id: string | number): Promise<Project> {
-    return request<Project>(`/projects/${id}/`);
+    const data = await request<unknown>(`/projects/${id}/`);
+    return ensureProject(firstObject<Project>(data, `/projects/${id}/`));
   },
 
   async getFeaturedProjects(): Promise<Project[]> {
-    return request<Project[]>("/projects/", { params: { featured: true } });
+    const data = await request<unknown>("/projects/", { params: { featured: true } });
+    return asList<Partial<Project>>(data, "/projects/?featured=true").map(ensureProject);
   },
 
   // ── Skills ────────────────────────────────────────────────────────────────
   async getSkills(): Promise<Skill[]> {
-    const skills = (await request<AboutData>("/about/")).skills
-    return skills;
+    const about = ensureAbout(firstObject<AboutData>(await request<unknown>("/about/"), "/about/"));
+    return about.skills;
   },
 
   // ── About ─────────────────────────────────────────────────────────────────
   async getAbout(): Promise<AboutData> {
-    return request<AboutData>("/about/");
+    return ensureAbout(firstObject<AboutData>(await request<unknown>("/about/"), "/about/"));
   },
 
   // ── Testimonials ──────────────────────────────────────────────────────────
   async getTestimonials(): Promise<Testimonial[]> {
-    return request<Testimonial[]>("/testimonials/");
+    const data = await request<unknown>("/testimonials/");
+    return asList<Testimonial>(data, "/testimonials/");
   },
 
   // ── Certifications ────────────────────────────────────────────────────────
   async getCertifications(): Promise<Certification[]> {
-    return request<Certification[]>("/certifications/");
+    const data = await request<unknown>("/certifications/");
+    return asList<Certification>(data, "/certifications/");
   },
 
   // ── Reviews ───────────────────────────────────────────────────────────────
   async getReviews(): Promise<Review[]> {
-    return request<Review[]>("/reviews/");
+    const data = await request<unknown>("/reviews/");
+    return asList<Review>(data, "/reviews/");
   },
 
   async submitReview(data: { name: string; message: string; rating?: number }): Promise<Review> {

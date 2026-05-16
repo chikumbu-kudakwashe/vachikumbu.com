@@ -3,6 +3,7 @@ import threading
 from rest_framework import viewsets, permissions, generics
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from django.http import Http404
 from drf_spectacular.utils import extend_schema
 
 from .models import Highlight, Skill, AboutData, Certification, Testimonial, Review
@@ -64,10 +65,10 @@ class AboutDataView(RequestContextMixin, generics.RetrieveUpdateAPIView):
     permission_classes = [AdminWriteOrReadOnly]
 
     def get_object(self):
-        obj, _ = (
-            AboutData.objects.prefetch_related("highlights", "skills").get_or_create(pk=1)
-        )
-        return obj
+        try:
+            return AboutData.objects.prefetch_related("highlights", "skills").get(pk=1)
+        except AboutData.DoesNotExist:
+            raise Http404("About data has not been created yet. Please create it in the admin panel.")
 
 
 @extend_schema(tags=["Certifications"])
