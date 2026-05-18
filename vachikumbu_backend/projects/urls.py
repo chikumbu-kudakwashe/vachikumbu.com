@@ -8,5 +8,5 @@ router.register(r'technologies', TechnologyViewSet, basename='technology')
 router.register(r'tags', TagViewSet, basename='tag')
 
 urlpatterns = [
-    path('api/', include(router.urls)),
+    path('', include(router.urls)),
 ]
